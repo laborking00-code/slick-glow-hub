@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Share2, MapPin, Heart } from "lucide-react";
+import { Share2, MapPin, Heart, MessageCircle } from "lucide-react";
 import coverPhoto from "@/assets/profile-cover.jpg";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -81,6 +81,9 @@ const ProfileHeader = () => {
         </div>
         
         <div className="flex gap-2">
+          <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+            <MessageCircle className="w-5 h-5" />
+          </Button>
           <Button variant="ghost" size="icon" className="hover:bg-primary/10">
             <Share2 className="w-5 h-5" />
           </Button>
