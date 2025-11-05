@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Settings } from "lucide-react";
+import { Settings, Upload, Camera } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,6 +22,10 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
   const [currentCity, setCurrentCity] = useState("");
   const [hobby, setHobby] = useState("");
   const [career, setCareer] = useState("");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("");
+  const [coverPreview, setCoverPreview] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -33,8 +37,59 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
       setCurrentCity(profile.current_city || "");
       setHobby(profile.hobby || "");
       setCareer(profile.career || "");
+      setAvatarPreview(profile.avatar_url || "");
+      setCoverPreview(profile.cover_url || "");
     }
   }, [profile]);
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAvatarPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setCoverPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async (file: File, folder: string): Promise<string | null> => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${folder}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(fileName);
+
+      return data.publicUrl;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      return null;
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,6 +98,21 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Not authenticated");
+
+      let avatarUrl = profile?.avatar_url;
+      let coverUrl = profile?.cover_url;
+
+      // Upload avatar if changed
+      if (avatarFile) {
+        const uploadedUrl = await uploadImage(avatarFile, 'avatar');
+        if (uploadedUrl) avatarUrl = uploadedUrl;
+      }
+
+      // Upload cover if changed
+      if (coverFile) {
+        const uploadedUrl = await uploadImage(coverFile, 'cover');
+        if (uploadedUrl) coverUrl = uploadedUrl;
+      }
 
       const { error } = await supabase
         .from("profiles")
@@ -53,6 +123,8 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
           current_city: currentCity,
           hobby,
           career,
+          avatar_url: avatarUrl,
+          cover_url: coverUrl,
         })
         .eq("id", user.id);
 
@@ -88,6 +160,59 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
           <DialogTitle className="gradient-text">Edit Profile</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Cover Photo Upload */}
+          <div className="space-y-2">
+            <Label>Cover Photo</Label>
+            <div className="relative h-32 rounded-lg overflow-hidden bg-muted">
+              {coverPreview ? (
+                <img src={coverPreview} alt="Cover preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-r from-primary/20 to-accent/20">
+                  <Camera className="w-8 h-8 text-muted-foreground" />
+                </div>
+              )}
+              <label className="absolute bottom-2 right-2 cursor-pointer">
+                <div className="bg-background/80 backdrop-blur-sm p-2 rounded-full hover:bg-background transition-all">
+                  <Upload className="w-4 h-4" />
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverChange}
+                  className="hidden"
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Avatar Upload */}
+          <div className="space-y-2">
+            <Label>Profile Picture</Label>
+            <div className="flex items-center gap-4">
+              <div className="relative w-20 h-20 rounded-full overflow-hidden bg-muted">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary to-accent">
+                    <Camera className="w-6 h-6 text-white" />
+                  </div>
+                )}
+                <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 hover:opacity-100 cursor-pointer transition-opacity">
+                  <Upload className="w-5 h-5 text-white" />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Click to upload a new profile picture
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="displayName">Display Name</Label>
             <Input

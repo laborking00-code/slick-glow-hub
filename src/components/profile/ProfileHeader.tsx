@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Share2, MapPin, Heart, MessageCircle } from "lucide-react";
-import coverPhoto from "@/assets/profile-cover.jpg";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import EditProfileDialog from "./EditProfileDialog";
@@ -56,11 +55,15 @@ const ProfileHeader = () => {
     <div className="glass-card rounded-2xl overflow-hidden relative">
       {/* Cover Photo */}
       <div className="relative h-32 sm:h-40 overflow-hidden">
-        <img 
-          src={coverPhoto} 
-          alt="Profile cover" 
-          className="w-full h-full object-cover"
-        />
+        {profile?.cover_url ? (
+          <img 
+            src={profile.cover_url} 
+            alt="Profile cover" 
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
       </div>
       
@@ -74,11 +77,19 @@ const ProfileHeader = () => {
         <div className="relative">
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 animate-scale-in animate-pulse-glow">
             <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
-              <img 
-                src="https://api.dicebear.com/7.x/avataaars/svg?seed=user123" 
-                alt="Profile" 
-                className="w-full h-full object-cover"
-              />
+              {profile?.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img 
+                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || 'user'}`} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
           </div>
           {/* Level Badge */}

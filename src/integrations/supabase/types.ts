@@ -168,6 +168,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           career: string | null
+          cover_url: string | null
           created_at: string
           current_city: string | null
           daily_streak: number | null
@@ -185,6 +186,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           career?: string | null
+          cover_url?: string | null
           created_at?: string
           current_city?: string | null
           daily_streak?: number | null
@@ -202,6 +204,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           career?: string | null
+          cover_url?: string | null
           created_at?: string
           current_city?: string | null
           daily_streak?: number | null
