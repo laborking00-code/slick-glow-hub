@@ -5,6 +5,9 @@ import { MessageSquare, Video, Film, Radio, Users, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import TextPostDialog from "@/components/create/TextPostDialog";
 import VideoPostDialog from "@/components/create/VideoPostDialog";
+import ReelPostDialog from "@/components/create/ReelPostDialog";
+import StreamDialog from "@/components/create/StreamDialog";
+import VideoChatDialog from "@/components/create/VideoChatDialog";
 
 interface CreatePostDialogProps {
   open: boolean;
@@ -17,6 +20,9 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   const { toast } = useToast();
   const [showTextDialog, setShowTextDialog] = useState(false);
   const [showVideoDialog, setShowVideoDialog] = useState(false);
+  const [showReelDialog, setShowReelDialog] = useState(false);
+  const [showStreamDialog, setShowStreamDialog] = useState(false);
+  const [showVideoChatDialog, setShowVideoChatDialog] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -70,12 +76,13 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
         setShowVideoDialog(true);
         break;
       case "reel":
+        setShowReelDialog(true);
+        break;
       case "stream":
+        setShowStreamDialog(true);
+        break;
       case "chat":
-        toast({
-          title: `${type} coming soon`,
-          description: "This feature is being developed!",
-        });
+        setShowVideoChatDialog(true);
         break;
     }
   };
@@ -164,6 +171,9 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
 
       <TextPostDialog open={showTextDialog} onOpenChange={setShowTextDialog} />
       <VideoPostDialog open={showVideoDialog} onOpenChange={setShowVideoDialog} />
+      <ReelPostDialog open={showReelDialog} onOpenChange={setShowReelDialog} />
+      <StreamDialog open={showStreamDialog} onOpenChange={setShowStreamDialog} />
+      <VideoChatDialog open={showVideoChatDialog} onOpenChange={setShowVideoChatDialog} />
     </Dialog>
   );
 };

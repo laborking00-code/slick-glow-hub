@@ -1,24 +1,24 @@
 import { useState, useRef, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Square, X, RotateCcw } from "lucide-react";
+import { Camera, Square, Play, X, RotateCcw } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Textarea } from "@/components/ui/textarea";
 
-interface VideoPostDialogProps {
+interface ReelPostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
+const ReelPostDialog = ({ open, onOpenChange }: ReelPostDialogProps) => {
   const { user } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [recordedVideo, setRecordedVideo] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [facingMode, setFacingMode] = useState<"user" | "environment">("environment");
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -38,9 +38,10 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { 
-          facingMode,
-          width: { ideal: 1920 }, 
-          height: { ideal: 1080 },
+          facingMode, 
+          width: { ideal: 1080 }, 
+          height: { ideal: 1920 },
+          aspectRatio: 9/16
         },
         audio: true,
       });
@@ -91,6 +92,13 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
     mediaRecorder.start();
     mediaRecorderRef.current = mediaRecorder;
     setIsRecording(true);
+
+    // Auto-stop after 60 seconds (max reel length)
+    setTimeout(() => {
+      if (mediaRecorderRef.current?.state === "recording") {
+        stopRecording();
+      }
+    }, 60000);
   };
 
   const stopRecording = () => {
@@ -113,7 +121,7 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
     try {
       const response = await fetch(recordedVideo);
       const blob = await response.blob();
-      const file = new File([blob], `video-${Date.now()}.webm`, { type: 'video/webm' });
+      const file = new File([blob], `reel-${Date.now()}.webm`, { type: 'video/webm' });
       
       const fileExt = file.name.split(".").pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
@@ -134,17 +142,17 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
           user_id: user.id,
           content: caption,
           image_url: publicUrl,
-          post_type: "video",
+          post_type: "reel",
         });
 
       if (insertError) throw insertError;
 
-      toast.success("Video posted!");
+      toast.success("Reel posted!");
       onOpenChange(false);
       resetRecording();
     } catch (error) {
-      console.error("Error uploading video:", error);
-      toast.error("Failed to post video");
+      console.error("Error uploading reel:", error);
+      toast.error("Failed to post reel");
     } finally {
       setUploading(false);
     }
@@ -152,13 +160,13 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Record Video</DialogTitle>
+      <DialogContent className="max-w-md p-0">
+        <DialogHeader className="p-4 pb-0">
+          <DialogTitle>Create Reel</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="relative aspect-video bg-black rounded-lg overflow-hidden">
+        <div className="space-y-4 p-4">
+          <div className="relative aspect-[9/16] bg-black rounded-lg overflow-hidden">
             {recordedVideo ? (
               <video
                 src={recordedVideo}
@@ -171,7 +179,7 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
                 autoPlay
                 playsInline
                 muted
-                className={`w-full h-full object-cover ${facingMode === "user" ? "mirror" : ""}`}
+                className="w-full h-full object-cover mirror"
               />
             )}
 
@@ -189,20 +197,20 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
             )}
 
             {!recordedVideo && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-4 items-center">
                 {isRecording ? (
                   <Button
                     onClick={stopRecording}
-                    className="rounded-full w-16 h-16 bg-red-500 hover:bg-red-600 p-0"
+                    className="rounded-full w-20 h-20 bg-red-500 hover:bg-red-600 p-0"
                   >
-                    <Square className="w-6 h-6 fill-white" />
+                    <Square className="w-8 h-8 fill-white" />
                   </Button>
                 ) : (
                   <Button
                     onClick={startRecording}
-                    className="rounded-full w-16 h-16 bg-red-500 hover:bg-red-600 p-0"
+                    className="rounded-full w-20 h-20 bg-red-500 hover:bg-red-600 p-0"
                   >
-                    <div className="w-12 h-12 rounded-full bg-white" />
+                    <div className="w-16 h-16 rounded-full bg-white" />
                   </Button>
                 )}
               </div>
@@ -239,7 +247,7 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
                   disabled={uploading}
                   className="flex-1"
                 >
-                  {uploading ? "Posting..." : "Post Video"}
+                  {uploading ? "Posting..." : "Post Reel"}
                 </Button>
               </div>
             </>
@@ -250,4 +258,4 @@ const VideoPostDialog = ({ open, onOpenChange }: VideoPostDialogProps) => {
   );
 };
 
-export default VideoPostDialog;
+export default ReelPostDialog;
