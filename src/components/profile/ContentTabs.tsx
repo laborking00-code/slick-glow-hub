@@ -1,9 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Grid3x3, Bookmark, Heart, FolderOpen } from "lucide-react";
+import { Grid3x3, Bookmark, Heart, FolderOpen, Play } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import PostCard from "./PostCard";
 import GallerySection from "./GallerySection";
+import StoriesSection from "./StoriesSection";
 
 const ContentTabs = () => {
   const [posts, setPosts] = useState<any[]>([]);
@@ -59,10 +60,14 @@ const ContentTabs = () => {
   return (
     <div className="glass-card rounded-2xl overflow-hidden">
       <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full grid grid-cols-4 rounded-none h-14 bg-card/50">
+        <TabsList className="w-full grid grid-cols-5 rounded-none h-14 bg-card/50">
           <TabsTrigger value="posts" className="gap-2">
             <Grid3x3 className="w-4 h-4" />
             Posts
+          </TabsTrigger>
+          <TabsTrigger value="stories" className="gap-2">
+            <Play className="w-4 h-4" />
+            Stories
           </TabsTrigger>
           <TabsTrigger value="gallery" className="gap-2">
             <FolderOpen className="w-4 h-4" />
@@ -97,6 +102,10 @@ const ContentTabs = () => {
               ))
             )}
           </div>
+        </TabsContent>
+        
+        <TabsContent value="stories" className="p-4 mt-0">
+          <StoriesSection />
         </TabsContent>
         
         <TabsContent value="gallery" className="p-4 mt-0">

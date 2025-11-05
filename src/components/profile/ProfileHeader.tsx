@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { MessageCircle, Camera, Upload, Video, MapPin, Heart } from "lucide-react";
+import { MessageCircle, Camera, Upload, Video, MapPin, Heart, Plus } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EditProfileDialog from "./EditProfileDialog";
 import ShareDialog from "./ShareDialog";
+import AddStoryDialog from "./AddStoryDialog";
 import { useToast } from "@/hooks/use-toast";
 
 const ProfileHeader = () => {
@@ -12,6 +13,7 @@ const ProfileHeader = () => {
   const [loading, setLoading] = useState(true);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [storyDialogOpen, setStoryDialogOpen] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -184,6 +186,7 @@ const ProfileHeader = () => {
   };
 
   return (
+    <>
     <div className="glass-card rounded-2xl overflow-hidden relative">
       {/* Cover Photo */}
       <div className="relative h-32 sm:h-40 overflow-hidden group">
@@ -313,6 +316,14 @@ const ProfileHeader = () => {
           <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-accent to-primary text-white text-xs font-bold px-3 py-1 rounded-full neon-glow-accent shadow-lg">
             Lv. {userLevel}
           </div>
+          
+          {/* Add Story Button */}
+          <button
+            onClick={() => setStoryDialogOpen(true)}
+            className="absolute -top-1 -left-1 w-6 h-6 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center shadow-lg hover:scale-110 transition-transform neon-glow"
+          >
+            <Plus className="w-4 h-4 text-white" />
+          </button>
         </div>
         
         <div className="flex gap-2">
@@ -372,11 +383,14 @@ const ProfileHeader = () => {
           <EditProfileDialog profile={profile} onProfileUpdated={fetchProfile} />
           <ShareDialog 
             username={profile?.username || 'user'} 
-            displayName={profile?.display_name || 'User'} 
+            displayName={profile?.display_name || 'User'}
           />
         </div>
       </div>
     </div>
+    
+    <AddStoryDialog open={storyDialogOpen} onOpenChange={setStoryDialogOpen} />
+  </>
   );
 };
 
