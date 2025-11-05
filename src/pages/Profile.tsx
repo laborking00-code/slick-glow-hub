@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileStats from "@/components/profile/ProfileStats";
 import GamificationSection from "@/components/profile/GamificationSection";
+import RoutineSection from "@/components/profile/RoutineSection";
 import FollowersList from "@/components/profile/FollowersList";
 import ContentTabs from "@/components/profile/ContentTabs";
 
@@ -28,6 +29,7 @@ const Profile = () => {
         <ProfileHeader />
         <ProfileStats />
         <GamificationSection />
+        <RoutineSection />
         <FollowersList />
         <ContentTabs />
       </main>
