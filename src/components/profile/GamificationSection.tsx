@@ -121,13 +121,12 @@ const GamificationSection = () => {
         </div>
       </div>
 
-      {selectedAchievement && (
+      {selectedAchievement && profile && (
         <AchievementDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
           type={selectedAchievement}
-          currentLevel={getAchievementLevel(selectedAchievement)}
-          progress={getAchievementProgress(selectedAchievement)}
+          userId={profile.id}
         />
       )}
 

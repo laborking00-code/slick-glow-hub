@@ -1,19 +1,21 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Sparkles, TrendingUp, Apple, Lock } from "lucide-react";
+import { Dumbbell, Sparkles, TrendingUp, Apple } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import BodyGoalsGuide from "./guides/BodyGoalsGuide";
 import SkinGlowGuide from "./guides/SkinGlowGuide";
 import LevelUpGuide from "./guides/LevelUpGuide";
 import MealsGuide from "./guides/MealsGuide";
+import AchievementSurvey from "./AchievementSurvey";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface AchievementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   type: 'body_goals' | 'skin_glow' | 'level_up' | 'meals';
-  currentLevel: number;
-  progress: number;
+  userId: string;
 }
 
 const achievementData = {
@@ -21,167 +23,173 @@ const achievementData = {
     icon: Dumbbell,
     title: "Body Goals",
     color: "text-accent",
-    levels: [
-      { level: 1, name: "Beginner Gains", requirement: 0, reward: "Weight tracking unlocked" },
-      { level: 2, name: "Muscle Builder", requirement: 100, reward: "Body composition tracker" },
-      { level: 3, name: "Transformation", requirement: 250, reward: "Progress photos comparison" },
-      { level: 4, name: "Beast Mode", requirement: 500, reward: "Advanced workout plans" },
-      { level: 5, name: "Elite Physique", requirement: 1000, reward: "Personal trainer AI" },
-    ]
   },
   skin_glow: {
     icon: Sparkles,
     title: "Skin Glow",
     color: "text-primary",
-    levels: [
-      { level: 1, name: "Fresh Start", requirement: 0, reward: "Basic skincare routine" },
-      { level: 2, name: "Clearing Up", requirement: 100, reward: "Acne tracker & tips" },
-      { level: 3, name: "Natural Glow", requirement: 250, reward: "Tan level monitor" },
-      { level: 4, name: "Radiant Skin", requirement: 500, reward: "UV protection alerts" },
-      { level: 5, name: "Flawless", requirement: 1000, reward: "Premium skincare recommendations" },
-    ]
   },
   level_up: {
     icon: TrendingUp,
     title: "Level Up",
     color: "text-accent",
-    levels: [
-      { level: 1, name: "Getting Started", requirement: 0, reward: "Daily challenges unlocked" },
-      { level: 2, name: "Consistent", requirement: 100, reward: "Streak bonuses" },
-      { level: 3, name: "Dedicated", requirement: 250, reward: "Premium badges" },
-      { level: 4, name: "Expert", requirement: 500, reward: "Custom goals" },
-      { level: 5, name: "Master", requirement: 1000, reward: "VIP status" },
-    ]
   },
   meals: {
     icon: Apple,
     title: "Meal Plans",
     color: "text-primary",
-    levels: [
-      { level: 1, name: "Nutrition Basics", requirement: 0, reward: "Meal planning guide" },
-      { level: 2, name: "Macro Tracker", requirement: 100, reward: "Calorie calculator" },
-      { level: 3, name: "Meal Prep Pro", requirement: 250, reward: "Custom meal plans" },
-      { level: 4, name: "Nutrition Expert", requirement: 500, reward: "Supplement guide" },
-      { level: 5, name: "Diet Master", requirement: 1000, reward: "Personal nutritionist AI" },
-    ]
   },
 };
 
-const AchievementDialog = ({ open, onOpenChange, type, currentLevel, progress }: AchievementDialogProps) => {
+const AchievementDialog = ({ open, onOpenChange, type, userId }: AchievementDialogProps) => {
   const achievement = achievementData[type];
   const Icon = achievement.icon;
-  const currentLevelData = achievement.levels[currentLevel - 1];
-  const nextLevelData = achievement.levels[currentLevel];
-  const progressToNext = nextLevelData ? (progress / nextLevelData.requirement) * 100 : 100;
+  const { toast } = useToast();
+  const [surveyResponses, setSurveyResponses] = useState<Record<string, string> | null>(null);
+  const [showSurvey, setShowSurvey] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSurveyResponses = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('user_achievements')
+        .select('survey_responses')
+        .eq('user_id', userId)
+        .eq('achievement_type', type)
+        .single();
+
+      if (error) {
+        console.error('Error fetching survey responses:', error);
+        setLoading(false);
+        return;
+      }
+
+      setSurveyResponses((data?.survey_responses as Record<string, string>) || null);
+      setLoading(false);
+    };
+
+    if (open && userId) {
+      fetchSurveyResponses();
+    }
+  }, [open, userId, type]);
+
+  const handleSurveyComplete = async (responses: Record<string, string>) => {
+    const { error } = await supabase
+      .from('user_achievements')
+      .upsert({
+        user_id: userId,
+        achievement_type: type,
+        survey_responses: responses,
+        level: 1,
+        progress: 0,
+      }, {
+        onConflict: 'user_id,achievement_type'
+      });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save survey responses",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSurveyResponses(responses);
+    setShowSurvey(false);
+  };
 
   const getGuideComponent = () => {
+    if (!surveyResponses) return null;
+    
     switch (type) {
       case 'body_goals':
-        return <BodyGoalsGuide />;
+        return <BodyGoalsGuide surveyResponses={surveyResponses} />;
       case 'skin_glow':
-        return <SkinGlowGuide />;
+        return <SkinGlowGuide surveyResponses={surveyResponses} />;
       case 'level_up':
-        return <LevelUpGuide />;
+        return <LevelUpGuide surveyResponses={surveyResponses} />;
       case 'meals':
-        return <MealsGuide />;
+        return <MealsGuide surveyResponses={surveyResponses} />;
       default:
         return null;
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-card max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <Icon className={`w-8 h-8 ${achievement.color}`} />
-            <span className="gradient-text">{achievement.title}</span>
-          </DialogTitle>
-        </DialogHeader>
+    <>
+      <AchievementSurvey
+        open={showSurvey}
+        onOpenChange={setShowSurvey}
+        type={type}
+        onComplete={handleSurveyComplete}
+      />
+      
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="glass-card max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <Icon className={`w-8 h-8 ${achievement.color}`} />
+              <span className="gradient-text">{achievement.title}</span>
+            </DialogTitle>
+          </DialogHeader>
 
-        <Tabs defaultValue="progress" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="progress">Progress & Levels</TabsTrigger>
-            <TabsTrigger value="guide">Complete Guide</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="progress" className="space-y-6 mt-4">
-          {/* Current Level */}
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Current Level: {currentLevelData.name}</h3>
-              <Badge variant="outline" className="gradient-text">
-                Level {currentLevel}
-              </Badge>
+          {loading ? (
+            <div className="py-12 text-center text-muted-foreground">
+              Loading your personalized guide...
             </div>
-            <p className="text-sm text-muted-foreground">
-              🎁 {currentLevelData.reward}
-            </p>
-            
-            {nextLevelData && (
-              <>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span>Progress to Level {nextLevelData.level}</span>
-                    <span className="text-muted-foreground">{progress} / {nextLevelData.requirement}</span>
-                  </div>
-                  <Progress value={progressToNext} className="h-2" />
-                </div>
-              </>
-            )}
-          </div>
+          ) : !surveyResponses ? (
+            <div className="space-y-4 py-8">
+              <div className="text-center space-y-3">
+                <Icon className={`w-16 h-16 ${achievement.color} mx-auto`} />
+                <h3 className="text-lg font-semibold">Get Your Personalized Guide</h3>
+                <p className="text-muted-foreground">
+                  Answer 3 quick questions to receive a customized guide with product recommendations tailored to your specific goals.
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowSurvey(true)}
+                className="w-full glass-card p-4 rounded-lg hover:border-primary transition-all text-center"
+              >
+                <span className="font-medium">Start 3-Question Survey</span>
+              </button>
+            </div>
+          ) : (
+            <Tabs defaultValue="guide" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="guide">Your Personalized Guide</TabsTrigger>
+                <TabsTrigger value="retake">Retake Survey</TabsTrigger>
+              </TabsList>
 
-          {/* All Levels */}
-          <div className="space-y-2">
-            <h3 className="font-semibold text-sm">All Levels</h3>
-            <div className="space-y-2 max-h-64 overflow-y-auto">
-              {achievement.levels.map((level) => {
-                const isUnlocked = currentLevel >= level.level;
-                const isCurrent = currentLevel === level.level;
-                
-                return (
-                  <div
-                    key={level.level}
-                    className={`glass-card p-3 rounded-lg ${
-                      isCurrent ? 'border-primary border-2' : ''
-                    } ${!isUnlocked ? 'opacity-50' : ''}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      {isUnlocked ? (
-                        <Icon className={`w-5 h-5 ${achievement.color}`} />
-                      ) : (
-                        <Lock className="w-5 h-5 text-muted-foreground" />
-                      )}
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-medium text-sm">{level.name}</h4>
-                          <Badge variant={isUnlocked ? "default" : "secondary"} className="text-xs">
-                            Lv {level.level}
-                          </Badge>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          {level.reward}
-                        </p>
-                        {!isUnlocked && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Requires {level.requirement} points
-                          </p>
-                        )}
+              <TabsContent value="guide" className="mt-4">
+                {getGuideComponent()}
+              </TabsContent>
+
+              <TabsContent value="retake" className="mt-4 space-y-4">
+                <div className="glass-card p-4 space-y-3">
+                  <h3 className="font-semibold">Current Responses</h3>
+                  <div className="space-y-2 text-sm">
+                    {Object.entries(surveyResponses).map(([key, value]) => (
+                      <div key={key} className="flex justify-between">
+                        <span className="text-muted-foreground capitalize">{key.replace('_', ' ')}:</span>
+                        <span className="font-medium capitalize">{value.replace('_', ' ')}</span>
                       </div>
-                    </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="guide" className="mt-4">
-            {getGuideComponent()}
-          </TabsContent>
-        </Tabs>
-      </DialogContent>
-    </Dialog>
+                </div>
+                <button 
+                  onClick={() => setShowSurvey(true)}
+                  className="w-full glass-card p-4 rounded-lg hover:border-primary transition-all"
+                >
+                  <span className="font-medium">Retake Survey</span>
+                </button>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

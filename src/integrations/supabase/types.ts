@@ -245,6 +245,7 @@ export type Database = {
           id: string
           level: number
           progress: number
+          survey_responses: Json | null
           unlocked_at: string
           user_id: string
         }
@@ -253,6 +254,7 @@ export type Database = {
           id?: string
           level?: number
           progress?: number
+          survey_responses?: Json | null
           unlocked_at?: string
           user_id: string
         }
@@ -261,6 +263,7 @@ export type Database = {
           id?: string
           level?: number
           progress?: number
+          survey_responses?: Json | null
           unlocked_at?: string
           user_id?: string
         }
