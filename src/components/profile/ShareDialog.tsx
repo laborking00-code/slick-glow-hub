@@ -73,10 +73,30 @@ const ShareDialog = ({ username, displayName }: ShareDialogProps) => {
       url: `https://reddit.com/submit?url=${encodeURIComponent(profileUrl)}&title=${encodeURIComponent(shareText)}`,
       color: "hover:bg-[#FF4500] hover:text-white"
     },
+    {
+      name: "TikTok",
+      icon: "🎵",
+      action: "copy",
+      color: "hover:bg-black hover:text-white"
+    },
+    {
+      name: "Instagram",
+      icon: "📷",
+      action: "copy",
+      color: "hover:bg-gradient-to-r hover:from-purple-600 hover:via-pink-600 hover:to-orange-500 hover:text-white"
+    },
   ];
 
-  const handleShare = (url: string) => {
-    window.open(url, '_blank', 'width=600,height=400');
+  const handleShare = (network: typeof socialNetworks[0]) => {
+    if (network.action === "copy") {
+      copyToClipboard();
+      toast({
+        title: `Link copied for ${network.name}!`,
+        description: `Open ${network.name} app and paste your profile link`,
+      });
+    } else {
+      window.open(network.url, '_blank', 'width=600,height=400');
+    }
   };
 
   return (
@@ -136,12 +156,12 @@ const ShareDialog = ({ username, displayName }: ShareDialogProps) => {
           {/* Social Networks */}
           <div className="space-y-3">
             <h3 className="font-semibold text-sm">Share on Social Media</h3>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-4 gap-2">
               {socialNetworks.map((network) => (
                 <Button
                   key={network.name}
                   variant="outline"
-                  onClick={() => handleShare(network.url)}
+                  onClick={() => handleShare(network)}
                   className={`glass-card flex flex-col items-center gap-1 h-auto py-3 transition-all ${network.color}`}
                 >
                   <span className="text-2xl">{network.icon}</span>
