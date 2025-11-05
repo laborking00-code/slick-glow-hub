@@ -1,12 +1,12 @@
-import { Award, Star, Trophy, Zap } from "lucide-react";
+import { Dumbbell, Sparkles, TrendingUp, Flame, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 const GamificationSection = () => {
   const achievements = [
-    { icon: Trophy, label: "Top Creator", color: "text-accent" },
-    { icon: Star, label: "5K Club", color: "text-primary" },
-    { icon: Zap, label: "Streak Master", color: "text-accent" },
-    { icon: Award, label: "Verified", color: "text-primary" },
+    { icon: Dumbbell, label: "Body Goals", color: "text-accent" },
+    { icon: Sparkles, label: "Skin Glow", color: "text-primary" },
+    { icon: TrendingUp, label: "Level Up", color: "text-accent" },
+    { icon: Flame, label: "Fire Form", color: "text-primary" },
   ];
 
   return (
@@ -28,7 +28,7 @@ const GamificationSection = () => {
 
       {/* Achievements */}
       <div>
-        <h3 className="text-sm font-semibold mb-3">Achievements</h3>
+        <h3 className="text-sm font-semibold mb-3 gradient-text">Glow Up Achievements</h3>
         <div className="grid grid-cols-4 gap-3">
           {achievements.map((achievement, index) => (
             <button
