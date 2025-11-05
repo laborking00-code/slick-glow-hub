@@ -128,10 +128,12 @@ export type Database = {
           career: string | null
           created_at: string
           current_city: string | null
+          daily_streak: number | null
           display_name: string | null
           glow_up_progress: number
           hobby: string | null
           id: string
+          last_active_date: string | null
           points: number
           relationship_status: string | null
           updated_at: string
@@ -143,10 +145,12 @@ export type Database = {
           career?: string | null
           created_at?: string
           current_city?: string | null
+          daily_streak?: number | null
           display_name?: string | null
           glow_up_progress?: number
           hobby?: string | null
           id: string
+          last_active_date?: string | null
           points?: number
           relationship_status?: string | null
           updated_at?: string
@@ -158,10 +162,12 @@ export type Database = {
           career?: string | null
           created_at?: string
           current_city?: string | null
+          daily_streak?: number | null
           display_name?: string | null
           glow_up_progress?: number
           hobby?: string | null
           id?: string
+          last_active_date?: string | null
           points?: number
           relationship_status?: string | null
           updated_at?: string
