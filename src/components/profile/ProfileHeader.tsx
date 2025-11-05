@@ -45,6 +45,13 @@ const ProfileHeader = () => {
     return statusMap[status] || status;
   };
 
+  // Calculate level: 1 level per 100 points, max level 10
+  const calculateLevel = (glowUpProgress: number) => {
+    return Math.min(Math.floor((glowUpProgress || 0) / 100) + 1, 10);
+  };
+
+  const userLevel = calculateLevel(profile?.glow_up_progress || 0);
+
   return (
     <div className="glass-card rounded-2xl overflow-hidden relative">
       {/* Cover Photo */}
@@ -76,7 +83,7 @@ const ProfileHeader = () => {
           </div>
           {/* Level Badge */}
           <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-accent to-primary text-white text-xs font-bold px-3 py-1 rounded-full neon-glow-accent">
-            Lv. 42
+            Lv. {userLevel}
           </div>
         </div>
         
