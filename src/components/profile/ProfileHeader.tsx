@@ -181,20 +181,25 @@ const ProfileHeader = () => {
             />
           )
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-primary/20 via-accent/20 to-primary/20" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/30 via-accent/20 to-primary/30 relative">
+            <div className="absolute inset-0 holographic opacity-20" />
+          </div>
         )}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
         
-        {/* Hover overlay for cover upload */}
-        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+        {/* Hover overlay for cover upload OR default prompt */}
+        <div className={`absolute inset-0 bg-black/60 ${profile?.cover_url ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity flex items-center justify-center`}>
           <label className="cursor-pointer">
             <div className="flex flex-col items-center gap-2 text-white">
-              <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/30 transition-all">
-                <Camera className="w-6 h-6" />
+              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full hover:bg-white/30 transition-all hover:scale-110">
+                <Camera className="w-8 h-8" />
               </div>
-              <span className="text-sm font-medium">
-                {uploadingCover ? 'Uploading...' : 'Change Cover'}
+              <span className="text-sm font-semibold">
+                {uploadingCover ? 'Uploading...' : profile?.cover_url ? 'Change Cover' : 'Add Cover Photo/Video'}
               </span>
+              {!profile?.cover_url && (
+                <span className="text-xs text-white/80">Click to upload image or video</span>
+              )}
             </div>
             <input
               ref={coverInputRef}
@@ -216,7 +221,7 @@ const ProfileHeader = () => {
         {/* Avatar and Actions */}
         <div className="flex items-start justify-between relative z-10">
         <div className="relative group">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 animate-scale-in animate-pulse-glow">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 animate-scale-in animate-pulse-glow shadow-lg">
             <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
                 <img 
@@ -225,20 +230,23 @@ const ProfileHeader = () => {
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <img 
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${profile?.username || 'user'}`} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
+                <div className="w-full h-full bg-gradient-to-br from-primary/80 to-accent/80 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
+                  <span className="text-4xl font-bold text-white z-10">
+                    {profile?.username?.charAt(0).toUpperCase() || '?'}
+                  </span>
+                </div>
               )}
             </div>
           </div>
           
           {/* Hover overlay for avatar upload */}
-          <label className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+          <label className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
             <div className="text-white flex flex-col items-center gap-1">
-              <Upload className="w-5 h-5" />
-              {uploadingAvatar && <span className="text-xs">Uploading...</span>}
+              <Upload className="w-6 h-6" />
+              <span className="text-xs font-medium">
+                {uploadingAvatar ? 'Uploading...' : 'Upload'}
+              </span>
             </div>
             <input
               ref={avatarInputRef}
@@ -251,7 +259,7 @@ const ProfileHeader = () => {
           </label>
           
           {/* Level Badge */}
-          <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-accent to-primary text-white text-xs font-bold px-3 py-1 rounded-full neon-glow-accent">
+          <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-accent to-primary text-white text-xs font-bold px-3 py-1 rounded-full neon-glow-accent shadow-lg">
             Lv. {userLevel}
           </div>
         </div>
