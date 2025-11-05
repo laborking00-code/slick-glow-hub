@@ -6,12 +6,14 @@ import ProfileStats from "@/components/profile/ProfileStats";
 import GamificationSection from "@/components/profile/GamificationSection";
 import RoutineSection from "@/components/profile/RoutineSection";
 import ContentTabs from "@/components/profile/ContentTabs";
+import CreatePostDialog from "@/components/profile/CreatePostDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const Profile = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -72,9 +74,13 @@ const Profile = () => {
         size="lg"
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg hover:shadow-xl neon-glow hover:scale-110 transition-all z-50 p-0"
         aria-label="Create new post"
+        onClick={() => setCreateDialogOpen(true)}
       >
         <Plus className="w-6 h-6" />
       </Button>
+
+      {/* Create Post Dialog */}
+      <CreatePostDialog open={createDialogOpen} onOpenChange={setCreateDialogOpen} />
     </div>
   );
 };
