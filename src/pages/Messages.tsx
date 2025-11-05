@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Home, Send, Search, MoreVertical } from "lucide-react";
+import { Home, Send, Search, MoreVertical, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import StartConversationDialog from "@/components/messages/StartConversationDialog";
 
 interface Profile {
   id: string;
@@ -39,6 +40,7 @@ const Messages = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showStartDialog, setShowStartDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -199,13 +201,20 @@ const Messages = () => {
       {/* Header */}
       <nav className="sticky top-0 z-50 glass-card border-b">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/profile">
+          <Link to="/">
             <Button variant="ghost" size="icon" className="hover:bg-primary/10">
               <Home className="w-5 h-5" />
             </Button>
           </Link>
           <h1 className="text-lg font-bold gradient-text">Messages</h1>
-          <div className="w-10" /> {/* Spacer for alignment */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hover:bg-primary/10"
+            onClick={() => setShowStartDialog(true)}
+          >
+            <Plus className="w-5 h-5" />
+          </Button>
         </div>
       </nav>
 
@@ -367,6 +376,12 @@ const Messages = () => {
           )}
         </div>
       </div>
+
+      <StartConversationDialog
+        open={showStartDialog}
+        onOpenChange={setShowStartDialog}
+        onSelectUser={(profile) => setSelectedConversation(profile)}
+      />
     </div>
   );
 };
