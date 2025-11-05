@@ -1,7 +1,36 @@
 import { Dumbbell, Sparkles, TrendingUp, Flame, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const GamificationSection = () => {
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const achievements = [
     { icon: Dumbbell, label: "Body Goals", color: "text-accent" },
     { icon: Sparkles, label: "Skin Glow", color: "text-primary" },
@@ -9,20 +38,33 @@ const GamificationSection = () => {
     { icon: Flame, label: "Fire Form", color: "text-primary" },
   ];
 
+  const glowUpProgress = profile ? (profile.glow_up_progress / 1000) * 100 : 0;
+  const totalPoints = profile?.points || 0;
+
   return (
     <div className="glass-card p-6 rounded-2xl space-y-6">
-      {/* XP Progress */}
+      {/* Points Display */}
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold">Level 42</span>
-          <span className="text-muted-foreground">8,540 / 10,000 XP</span>
+          <span className="font-semibold gradient-text">Total Points</span>
+          <span className="text-2xl font-bold gradient-text">{totalPoints}</span>
+        </div>
+      </div>
+
+      {/* Glow Up Progress */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="font-semibold">Glow Up Progress</span>
+          <span className="text-muted-foreground">{profile?.glow_up_progress || 0} / 1000</span>
         </div>
         <div className="relative">
-          <Progress value={85.4} className="h-3" />
+          <Progress value={glowUpProgress} className="h-3" />
           <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-20 rounded-full" />
         </div>
         <p className="text-xs text-muted-foreground text-center">
-          1,460 XP until Level 43 🎯
+          {profile?.glow_up_progress >= 1000 
+            ? "🎉 Glow Up Complete!" 
+            : `${1000 - (profile?.glow_up_progress || 0)} points until complete`}
         </p>
       </div>
 

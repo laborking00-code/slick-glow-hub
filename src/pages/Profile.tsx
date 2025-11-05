@@ -1,5 +1,5 @@
-import { Home } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Home, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileStats from "@/components/profile/ProfileStats";
@@ -7,8 +7,29 @@ import GamificationSection from "@/components/profile/GamificationSection";
 import RoutineSection from "@/components/profile/RoutineSection";
 import FollowersList from "@/components/profile/FollowersList";
 import ContentTabs from "@/components/profile/ContentTabs";
+import { useAuth } from "@/hooks/useAuth";
+import { useEffect } from "react";
 
 const Profile = () => {
+  const { user, loading, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -20,7 +41,14 @@ const Profile = () => {
             </Button>
           </Link>
           <h1 className="text-lg font-bold">Profile</h1>
-          <div className="w-10" />
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="hover:bg-destructive/10"
+            onClick={signOut}
+          >
+            <LogOut className="w-5 h-5" />
+          </Button>
         </div>
       </nav>
 

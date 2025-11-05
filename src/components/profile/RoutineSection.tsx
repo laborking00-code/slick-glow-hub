@@ -2,63 +2,79 @@ import { CheckCircle2, Circle, Clock, Dumbbell, Apple, Pill, Sun } from "lucide-
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import AddRoutineDialog from "./AddRoutineDialog";
+
+interface Routine {
+  id: string;
+  title: string;
+  time: string;
+  completed: boolean;
+  category: string;
+}
 
 const RoutineSection = () => {
-  const [morningTasks, setMorningTasks] = useState([
-    { id: 1, title: "Wake up & hydrate", completed: true, time: "6:00 AM" },
-    { id: 2, title: "Meditation", completed: true, time: "6:15 AM" },
-    { id: 3, title: "Cold shower", completed: false, time: "6:30 AM" },
-    { id: 4, title: "Journal", completed: false, time: "6:45 AM" },
-  ]);
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const [workoutTasks, setWorkoutTasks] = useState([
-    { id: 1, title: "Warm up", completed: true, time: "7:00 AM" },
-    { id: 2, title: "Strength training", completed: true, time: "7:15 AM" },
-    { id: 3, title: "Cardio", completed: false, time: "7:45 AM" },
-    { id: 4, title: "Cool down & stretch", completed: false, time: "8:15 AM" },
-  ]);
+  const fetchRoutines = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
 
-  const [mealTasks, setMealTasks] = useState([
-    { id: 1, title: "Breakfast - Protein shake", completed: true, time: "8:30 AM" },
-    { id: 2, title: "Lunch - Chicken & rice", completed: true, time: "12:30 PM" },
-    { id: 3, title: "Snack - Fruits & nuts", completed: false, time: "3:30 PM" },
-    { id: 4, title: "Dinner - Salmon & veggies", completed: false, time: "7:00 PM" },
-  ]);
+      const { data, error } = await supabase
+        .from("routines")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: true });
 
-  const [supplementTasks, setSupplementTasks] = useState([
-    { id: 1, title: "Multivitamin", completed: true, time: "8:30 AM" },
-    { id: 2, title: "Omega-3", completed: true, time: "12:30 PM" },
-    { id: 3, title: "Vitamin D", completed: false, time: "3:30 PM" },
-    { id: 4, title: "Magnesium", completed: false, time: "9:00 PM" },
-  ]);
-
-  const toggleTask = (id: number, type: string) => {
-    const setters = {
-      morning: setMorningTasks,
-      workout: setWorkoutTasks,
-      meal: setMealTasks,
-      supplement: setSupplementTasks,
-    };
-    
-    const tasks = {
-      morning: morningTasks,
-      workout: workoutTasks,
-      meal: mealTasks,
-      supplement: supplementTasks,
-    };
-
-    const setter = setters[type as keyof typeof setters];
-    const taskList = tasks[type as keyof typeof tasks];
-    
-    setter(taskList.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+      if (error) throw error;
+      setRoutines(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const renderRoutine = (tasks: typeof morningTasks, type: string) => {
-    const completedTasks = tasks.filter(task => task.completed).length;
-    const progress = (completedTasks / tasks.length) * 100;
+  useEffect(() => {
+    fetchRoutines();
+  }, []);
+
+  const toggleTask = async (id: string, completed: boolean) => {
+    try {
+      const { error } = await supabase
+        .from("routines")
+        .update({ completed: !completed })
+        .eq("id", id);
+
+      if (error) throw error;
+
+      setRoutines(routines.map(r => 
+        r.id === id ? { ...r, completed: !r.completed } : r
+      ));
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderRoutine = (category: string) => {
+    const categoryRoutines = routines.filter(r => r.category === category);
+    const completedTasks = categoryRoutines.filter(r => r.completed).length;
+    const progress = categoryRoutines.length > 0 
+      ? (completedTasks / categoryRoutines.length) * 100 
+      : 0;
 
     return (
       <div className="space-y-4">
@@ -69,37 +85,45 @@ const RoutineSection = () => {
                  style={{ width: `${progress}%` }} />
           </div>
           <p className="text-xs text-muted-foreground text-center">
-            {progress === 100 ? "🎉 All tasks completed!" : `${Math.round(progress)}% complete - ${completedTasks}/${tasks.length} tasks`}
+            {progress === 100 && categoryRoutines.length > 0
+              ? "🎉 All tasks completed!" 
+              : `${Math.round(progress)}% complete - ${completedTasks}/${categoryRoutines.length} tasks`}
           </p>
         </div>
 
         <div className="space-y-2 relative z-10">
-          {tasks.map((task) => (
-            <button
-              key={task.id}
-              onClick={() => toggleTask(task.id, type)}
-              className="w-full glass-card p-4 rounded-xl hover:scale-[1.02] transition-all group relative overflow-hidden border border-white/5 hover:border-primary/30"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-              
-              <div className="flex items-center gap-3 relative z-10">
-                {task.completed ? (
-                  <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                ) : (
-                  <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />
-                )}
-                <div className="flex-1 text-left">
-                  <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
-                    {task.title}
-                  </p>
-                  <div className="flex items-center gap-1 mt-1">
-                    <Clock className="w-3 h-3 text-muted-foreground" />
-                    <span className="text-xs text-muted-foreground">{task.time}</span>
+          {categoryRoutines.length === 0 ? (
+            <p className="text-center text-sm text-muted-foreground py-8">
+              No routines yet. Add your first one!
+            </p>
+          ) : (
+            categoryRoutines.map((task) => (
+              <button
+                key={task.id}
+                onClick={() => toggleTask(task.id, task.completed)}
+                className="w-full glass-card p-4 rounded-xl hover:scale-[1.02] transition-all group relative overflow-hidden border border-white/5 hover:border-primary/30"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                <div className="flex items-center gap-3 relative z-10">
+                  {task.completed ? (
+                    <CheckCircle2 className="w-5 h-5 text-primary flex-shrink-0 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  ) : (
+                    <Circle className="w-5 h-5 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors group-hover:drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]" />
+                  )}
+                  <div className="flex-1 text-left">
+                    <p className={`text-sm font-medium ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
+                      {task.title}
+                    </p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <Clock className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-xs text-muted-foreground">{task.time}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </button>
-          ))}
+              </button>
+            ))
+          )}
         </div>
       </div>
     );
@@ -111,6 +135,7 @@ const RoutineSection = () => {
       
       <div className="flex items-center justify-between relative z-10 mb-4">
         <h3 className="text-lg font-bold gradient-text">Daily Routines</h3>
+        <AddRoutineDialog onRoutineAdded={fetchRoutines} />
       </div>
 
       <Tabs defaultValue="morning" className="relative z-10">
@@ -134,19 +159,19 @@ const RoutineSection = () => {
         </TabsList>
 
         <TabsContent value="morning" className="mt-4">
-          {renderRoutine(morningTasks, "morning")}
+          {renderRoutine("morning")}
         </TabsContent>
 
         <TabsContent value="workout" className="mt-4">
-          {renderRoutine(workoutTasks, "workout")}
+          {renderRoutine("workout")}
         </TabsContent>
 
         <TabsContent value="meal" className="mt-4">
-          {renderRoutine(mealTasks, "meal")}
+          {renderRoutine("meal")}
         </TabsContent>
 
         <TabsContent value="supplement" className="mt-4">
-          {renderRoutine(supplementTasks, "supplement")}
+          {renderRoutine("supplement")}
         </TabsContent>
       </Tabs>
     </div>
