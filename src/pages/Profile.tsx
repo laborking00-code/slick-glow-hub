@@ -1,4 +1,4 @@
-import { Home, LogOut } from "lucide-react";
+import { Home, LogOut, ShoppingBag } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -40,14 +40,21 @@ const Profile = () => {
             </Button>
           </Link>
           <h1 className="text-lg font-bold">Profile</h1>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="hover:bg-destructive/10"
-            onClick={signOut}
-          >
-            <LogOut className="w-5 h-5" />
-          </Button>
+          <div className="flex gap-2">
+            <Link to="/products">
+              <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+                <ShoppingBag className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hover:bg-destructive/10"
+              onClick={signOut}
+            >
+              <LogOut className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
       </nav>
 

@@ -188,9 +188,10 @@ const SkinGlowGuide = ({ surveyResponses }: SkinGlowGuideProps) => {
       )}
 
       <Tabs defaultValue="routine" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="routine">Your Daily Routine</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="routine">Daily Routine</TabsTrigger>
           <TabsTrigger value="tips">Pro Tips</TabsTrigger>
+          <TabsTrigger value="ingredients">Ingredient Guide</TabsTrigger>
         </TabsList>
 
         <TabsContent value="routine" className="space-y-4">
@@ -279,6 +280,80 @@ const SkinGlowGuide = ({ surveyResponses }: SkinGlowGuideProps) => {
               <li>💧 Eat foods rich in omega-3s and antioxidants</li>
               <li>💧 Less is more - don't over-exfoliate</li>
             </ul>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="ingredients" className="space-y-4">
+          <Card className="glass-card p-4">
+            <h3 className="font-semibold mb-3">Active Ingredients Guide</h3>
+            <div className="space-y-2 text-sm">
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">Retinol (Vitamin A)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Anti-aging, acne, texture<br/>
+                  <strong>Use:</strong> PM only, start 2x/week, build to nightly<br/>
+                  <strong>Tip:</strong> Must use SPF 50 daily when using retinol
+                </p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">Vitamin C (L-Ascorbic Acid)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Brightening, dark spots, antioxidant<br/>
+                  <strong>Use:</strong> AM routine, 15-20% concentration<br/>
+                  <strong>Tip:</strong> Store in dark bottle, use within 3 months
+                </p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">Niacinamide (Vitamin B3)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Oil control, pores, redness<br/>
+                  <strong>Use:</strong> AM/PM, 10% concentration<br/>
+                  <strong>Tip:</strong> Gentle, works well with other actives
+                </p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">Hyaluronic Acid</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Hydration, all skin types<br/>
+                  <strong>Use:</strong> AM/PM on damp skin<br/>
+                  <strong>Tip:</strong> Holds 1000x its weight in water
+                </p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">Salicylic Acid (BHA)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Acne, blackheads, oily skin<br/>
+                  <strong>Use:</strong> PM, 2% concentration<br/>
+                  <strong>Tip:</strong> Penetrates pores to clear congestion
+                </p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium">AHA (Glycolic/Lactic Acid)</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <strong>Best for:</strong> Exfoliation, brightening<br/>
+                  <strong>Use:</strong> PM, 2-3x/week<br/>
+                  <strong>Tip:</strong> Makes skin sun-sensitive, use SPF
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="glass-card p-4">
+            <h3 className="font-semibold mb-3">Ingredient Combinations</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="p-2 glass-card rounded">
+                <p className="font-medium text-foreground">✅ Safe Together</p>
+                <p className="text-xs">Vitamin C + Vitamin E + Ferulic Acid</p>
+                <p className="text-xs">Niacinamide + Hyaluronic Acid</p>
+                <p className="text-xs">Retinol + Peptides</p>
+              </div>
+              <div className="p-2 glass-card rounded border-destructive/20">
+                <p className="font-medium text-destructive">❌ Avoid Together</p>
+                <p className="text-xs">Retinol + Vitamin C (use AM/PM)</p>
+                <p className="text-xs">Retinol + AHA/BHA (alternate nights)</p>
+                <p className="text-xs">Vitamin C + Niacinamide (debated, but safe)</p>
+              </div>
+            </div>
           </Card>
         </TabsContent>
       </Tabs>

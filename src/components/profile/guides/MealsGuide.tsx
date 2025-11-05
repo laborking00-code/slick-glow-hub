@@ -218,9 +218,10 @@ const MealsGuide = ({ surveyResponses }: MealsGuideProps) => {
       )}
 
       <Tabs defaultValue="plan" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="plan">Your Meal Plan</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="plan">Meal Plan</TabsTrigger>
           <TabsTrigger value="tips">Nutrition Tips</TabsTrigger>
+          <TabsTrigger value="recipes">Quick Recipes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="plan" className="space-y-4">
@@ -329,6 +330,75 @@ const MealsGuide = ({ surveyResponses }: MealsGuideProps) => {
               </ul>
             </Card>
           )}
+        </TabsContent>
+
+        <TabsContent value="recipes" className="space-y-4">
+          <Card className="glass-card p-4">
+            <h3 className="font-semibold mb-3">Quick High-Protein Recipes</h3>
+            <div className="space-y-3">
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium text-sm">Overnight Protein Oats</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  1 cup oats, 1 scoop protein powder, 1 cup milk, berries, peanut butter
+                </p>
+                <p className="text-xs text-primary font-medium mt-1">Macros: 45g P | 60g C | 15g F</p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium text-sm">Chicken Rice Bowl</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  6oz grilled chicken, 1 cup brown rice, veggies, teriyaki sauce
+                </p>
+                <p className="text-xs text-primary font-medium mt-1">Macros: 50g P | 55g C | 8g F</p>
+              </div>
+              <div className="p-3 glass-card rounded-lg">
+                <p className="font-medium text-sm">Salmon & Sweet Potato</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  6oz salmon, 1 large sweet potato, asparagus, olive oil
+                </p>
+                <p className="text-xs text-primary font-medium mt-1">Macros: 45g P | 50g C | 18g F</p>
+              </div>
+              {(diet === 'vegan' || diet === 'vegetarian') && (
+                <>
+                  <div className="p-3 glass-card rounded-lg">
+                    <p className="font-medium text-sm">Tofu Scramble Bowl</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      1 block firm tofu, veggies, turmeric, nutritional yeast, toast
+                    </p>
+                    <p className="text-xs text-primary font-medium mt-1">Macros: 35g P | 45g C | 15g F</p>
+                  </div>
+                  <div className="p-3 glass-card rounded-lg">
+                    <p className="font-medium text-sm">Lentil Curry</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      2 cups cooked lentils, coconut milk, curry spices, rice
+                    </p>
+                    <p className="text-xs text-primary font-medium mt-1">Macros: 25g P | 75g C | 12g F</p>
+                  </div>
+                </>
+              )}
+            </div>
+          </Card>
+
+          <Card className="glass-card p-4">
+            <h3 className="font-semibold mb-3">Snack Ideas</h3>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="p-2 glass-card rounded">
+                <p className="font-medium text-xs">Greek Yogurt + Berries</p>
+                <p className="text-xs text-muted-foreground">20g protein</p>
+              </div>
+              <div className="p-2 glass-card rounded">
+                <p className="font-medium text-xs">Protein Shake</p>
+                <p className="text-xs text-muted-foreground">25g protein</p>
+              </div>
+              <div className="p-2 glass-card rounded">
+                <p className="font-medium text-xs">Almonds (1/4 cup)</p>
+                <p className="text-xs text-muted-foreground">8g protein</p>
+              </div>
+              <div className="p-2 glass-card rounded">
+                <p className="font-medium text-xs">Tuna + Crackers</p>
+                <p className="text-xs text-muted-foreground">30g protein</p>
+              </div>
+            </div>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

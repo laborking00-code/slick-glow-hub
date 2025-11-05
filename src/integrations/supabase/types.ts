@@ -121,6 +121,48 @@ export type Database = {
           },
         ]
       }
+      products: {
+        Row: {
+          achievement_type: string | null
+          category: string
+          created_at: string
+          description: string
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          name: string
+          pdf_url: string | null
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          achievement_type?: string | null
+          category: string
+          created_at?: string
+          description: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          name: string
+          pdf_url?: string | null
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          achievement_type?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          pdf_url?: string | null
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
