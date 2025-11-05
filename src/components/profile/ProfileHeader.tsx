@@ -273,13 +273,25 @@ const ProfileHeader = () => {
             </div>
           </div>
           
-          {/* Hover overlay for avatar upload */}
-          <label className="absolute inset-0 flex items-center justify-center bg-black/70 rounded-full opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
+          {/* Hover overlay for avatar upload OR default prompt */}
+          <label className={`absolute inset-0 flex items-center justify-center rounded-full cursor-pointer transition-opacity ${profile?.avatar_url ? 'bg-black/70 opacity-0 group-hover:opacity-100' : 'bg-black/50 opacity-100'}`}>
             <div className="text-white flex flex-col items-center gap-1">
-              <Upload className="w-6 h-6" />
-              <span className="text-xs font-medium">
-                {uploadingAvatar ? 'Uploading...' : 'Upload'}
-              </span>
+              {profile?.avatar_url ? (
+                <>
+                  <Upload className="w-6 h-6" />
+                  <span className="text-xs font-medium">
+                    {uploadingAvatar ? 'Uploading...' : 'Change'}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Camera className="w-6 h-6" />
+                  <span className="text-xs font-semibold">
+                    {uploadingAvatar ? 'Uploading...' : 'Add Photo'}
+                  </span>
+                  <span className="text-[10px] text-white/80">or Video</span>
+                </>
+              )}
             </div>
             <input
               ref={avatarInputRef}
