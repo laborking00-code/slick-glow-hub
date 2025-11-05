@@ -332,7 +332,7 @@ const LevelUpGuide = ({ surveyResponses }: LevelUpGuideProps) => {
               <li>📚 Certifications boost resume visibility by 40%</li>
               <li>📚 Build portfolio projects while learning</li>
               <li>📚 Network in online communities (Reddit, Discord, LinkedIn)</li>
-              <li>📚 Practice > Theory - apply what you learn immediately</li>
+              <li>📚 Practice {`>`} Theory - apply what you learn immediately</li>
             </ul>
           </Card>
         </TabsContent>
