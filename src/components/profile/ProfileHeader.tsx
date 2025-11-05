@@ -1,8 +1,50 @@
 import { Button } from "@/components/ui/button";
-import { Settings, Share2 } from "lucide-react";
+import { Share2, MapPin, Heart } from "lucide-react";
 import coverPhoto from "@/assets/profile-cover.jpg";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import EditProfileDialog from "./EditProfileDialog";
 
 const ProfileHeader = () => {
+  const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const formatRelationshipStatus = (status: string) => {
+    if (!status) return null;
+    const statusMap: { [key: string]: string } = {
+      single: "Single",
+      in_relationship: "In a Relationship",
+      engaged: "Engaged",
+      married: "Married",
+      complicated: "It's Complicated",
+    };
+    return statusMap[status] || status;
+  };
+
   return (
     <div className="glass-card rounded-2xl overflow-hidden relative">
       {/* Cover Photo */}
@@ -42,23 +84,34 @@ const ProfileHeader = () => {
           <Button variant="ghost" size="icon" className="hover:bg-primary/10">
             <Share2 className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-            <Settings className="w-5 h-5" />
-          </Button>
+          <EditProfileDialog profile={profile} onProfileUpdated={fetchProfile} />
         </div>
       </div>
 
       {/* User Info */}
       <div className="space-y-2">
         <div>
-          <h2 className="text-2xl font-bold">Alex Rivera</h2>
-          <p className="text-sm text-muted-foreground">@alexrivera</p>
+          <h2 className="text-2xl font-bold">{profile?.display_name || "User"}</h2>
+          <p className="text-sm text-muted-foreground">@{profile?.username || "user"}</p>
         </div>
-        <p className="text-sm text-foreground/80">
-          Digital creator ✨ | Coffee enthusiast ☕ | Explorer 🌍
-        </p>
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span>🎯 Creator since 2021</span>
+        {profile?.bio && (
+          <p className="text-sm text-foreground/80">
+            {profile.bio}
+          </p>
+        )}
+        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+          {profile?.relationship_status && (
+            <div className="flex items-center gap-1">
+              <Heart className="w-4 h-4" />
+              <span>{formatRelationshipStatus(profile.relationship_status)}</span>
+            </div>
+          )}
+          {profile?.current_city && (
+            <div className="flex items-center gap-1">
+              <MapPin className="w-4 h-4" />
+              <span>{profile.current_city}</span>
+            </div>
+          )}
         </div>
       </div>
 

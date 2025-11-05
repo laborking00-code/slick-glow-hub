@@ -1,35 +1,59 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Grid3x3, Bookmark, Heart } from "lucide-react";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import PostCard from "./PostCard";
 
 const ContentTabs = () => {
-  const mockPosts = Array.from({ length: 9 }, (_, i) => ({
-    id: i + 1,
-    image: `https://images.unsplash.com/photo-${1500000000000 + i * 100000000}?w=400&h=400&fit=crop`,
-    likes: Math.floor(Math.random() * 10000),
-  }));
+  const [posts, setPosts] = useState<any[]>([]);
+  const [profile, setProfile] = useState<any>(null);
+  const [likes, setLikes] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const PostGrid = () => (
-    <div className="grid grid-cols-3 gap-1">
-      {mockPosts.map((post) => (
-        <button
-          key={post.id}
-          className="aspect-square relative group overflow-hidden rounded-lg"
-        >
-          <img
-            src={post.image}
-            alt={`Post ${post.id}`}
-            className="w-full h-full object-cover transition-transform group-hover:scale-110"
-          />
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-            <div className="flex items-center gap-2 text-white">
-              <Heart className="w-5 h-5 fill-white" />
-              <span className="font-semibold">{post.likes.toLocaleString()}</span>
-            </div>
-          </div>
-        </button>
-      ))}
-    </div>
-  );
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      // Fetch profile
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+      setProfile(profileData);
+
+      // Fetch posts
+      const { data: postsData } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setPosts(postsData || []);
+
+      // Fetch all likes to count
+      const { data: allLikesData } = await supabase
+        .from("likes")
+        .select("*");
+      setLikes(allLikesData || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getLikeCount = (postId: string) => {
+    return likes.filter(like => like.post_id === postId).length;
+  };
+
+  const isPostLiked = (postId: string, userId: string) => {
+    return likes.some(like => like.post_id === postId && like.user_id === userId);
+  };
 
   return (
     <div className="glass-card rounded-2xl overflow-hidden">
@@ -50,15 +74,52 @@ const ContentTabs = () => {
         </TabsList>
         
         <TabsContent value="posts" className="p-4 mt-0">
-          <PostGrid />
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-center text-muted-foreground py-8">Loading posts...</p>
+            ) : posts.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No posts yet</p>
+            ) : (
+              posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={post}
+                  profile={profile}
+                  likeCount={getLikeCount(post.id)}
+                  isLiked={isPostLiked(post.id, profile?.id)}
+                  onLikeToggle={fetchData}
+                />
+              ))
+            )}
+          </div>
         </TabsContent>
         
         <TabsContent value="saved" className="p-4 mt-0">
-          <PostGrid />
+          <p className="text-center text-muted-foreground py-8">No saved posts yet</p>
         </TabsContent>
         
         <TabsContent value="liked" className="p-4 mt-0">
-          <PostGrid />
+          <div className="space-y-4">
+            {loading ? (
+              <p className="text-center text-muted-foreground py-8">Loading...</p>
+            ) : (
+              posts
+                .filter(post => isPostLiked(post.id, profile?.id))
+                .map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    profile={profile}
+                    likeCount={getLikeCount(post.id)}
+                    isLiked={true}
+                    onLikeToggle={fetchData}
+                  />
+                ))
+            )}
+            {!loading && posts.filter(post => isPostLiked(post.id, profile?.id)).length === 0 && (
+              <p className="text-center text-muted-foreground py-8">No liked posts yet</p>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
     </div>
