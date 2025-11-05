@@ -1,4 +1,4 @@
-import { Home, LogOut, ShoppingBag } from "lucide-react";
+import { Home, LogOut, ShoppingBag, Plus } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ProfileHeader from "@/components/profile/ProfileHeader";
@@ -66,6 +66,15 @@ const Profile = () => {
         <RoutineSection />
         <ContentTabs />
       </main>
+
+      {/* Fixed Create Button */}
+      <Button
+        size="lg"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full bg-gradient-to-r from-primary to-accent shadow-lg hover:shadow-xl neon-glow hover:scale-110 transition-all z-50 p-0"
+        aria-label="Create new post"
+      >
+        <Plus className="w-6 h-6" />
+      </Button>
     </div>
   );
 };

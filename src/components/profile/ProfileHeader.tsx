@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Share2, MapPin, Heart, MessageCircle, Camera, Upload } from "lucide-react";
+import { Share2, MapPin, Heart, MessageCircle, Camera, Upload, Video } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import EditProfileDialog from "./EditProfileDialog";
@@ -213,14 +213,19 @@ const ProfileHeader = () => {
         <div className={`absolute inset-0 bg-black/60 ${profile?.cover_url ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'} transition-opacity flex items-center justify-center`}>
           <label className="cursor-pointer">
             <div className="flex flex-col items-center gap-2 text-white">
-              <div className="bg-white/20 backdrop-blur-sm p-4 rounded-full hover:bg-white/30 transition-all hover:scale-110">
-                <Camera className="w-8 h-8" />
+              <div className="flex gap-2">
+                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/30 transition-all hover:scale-110">
+                  <Camera className="w-6 h-6" />
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full hover:bg-white/30 transition-all hover:scale-110">
+                  <Video className="w-6 h-6" />
+                </div>
               </div>
               <span className="text-sm font-semibold">
                 {uploadingCover ? 'Uploading...' : profile?.cover_url ? 'Change Cover' : 'Add Cover Photo/Video'}
               </span>
               {!profile?.cover_url && (
-                <span className="text-xs text-white/80">Click to upload image or video</span>
+                <span className="text-xs text-white/80">Click to upload</span>
               )}
             </div>
             <input
@@ -263,33 +268,32 @@ const ProfileHeader = () => {
                   />
                 )
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-primary/80 to-accent/80 flex items-center justify-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
-                  <span className="text-4xl font-bold text-white z-10">
-                    {profile?.username?.charAt(0).toUpperCase() || '?'}
-                  </span>
+                <div className="w-full h-full bg-gradient-to-br from-primary/30 to-accent/30 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 holographic opacity-30" />
                 </div>
               )}
             </div>
           </div>
           
           {/* Hover overlay for avatar upload OR default prompt */}
-          <label className={`absolute inset-0 flex items-center justify-center rounded-full cursor-pointer transition-opacity ${profile?.avatar_url ? 'bg-black/70 opacity-0 group-hover:opacity-100' : 'bg-black/50 opacity-100'}`}>
+          <label className={`absolute inset-0 flex items-center justify-center rounded-full cursor-pointer transition-opacity ${profile?.avatar_url ? 'bg-black/70 opacity-0 group-hover:opacity-100' : 'bg-black/60 opacity-100'}`}>
             <div className="text-white flex flex-col items-center gap-1">
               {profile?.avatar_url ? (
                 <>
-                  <Upload className="w-6 h-6" />
-                  <span className="text-xs font-medium">
+                  <Upload className="w-5 h-5" />
+                  <span className="text-[10px] font-medium">
                     {uploadingAvatar ? 'Uploading...' : 'Change'}
                   </span>
                 </>
               ) : (
                 <>
-                  <Camera className="w-6 h-6" />
-                  <span className="text-xs font-semibold">
-                    {uploadingAvatar ? 'Uploading...' : 'Add Photo'}
+                  <div className="flex gap-1 mb-1">
+                    <Camera className="w-4 h-4" />
+                    <Video className="w-4 h-4" />
+                  </div>
+                  <span className="text-[10px] font-semibold">
+                    {uploadingAvatar ? 'Uploading...' : 'Add Photo/Video'}
                   </span>
-                  <span className="text-[10px] text-white/80">or Video</span>
                 </>
               )}
             </div>
