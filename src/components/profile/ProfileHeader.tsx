@@ -89,30 +89,45 @@ const ProfileHeader = () => {
       </div>
 
       {/* User Info */}
-      <div className="space-y-2">
-        <div>
-          <h2 className="text-2xl font-bold">{profile?.display_name || "User"}</h2>
-          <p className="text-sm text-muted-foreground">@{profile?.username || "user"}</p>
+      <div className="space-y-3">
+        <div className="flex items-start gap-4">
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold">{profile?.display_name || "User"}</h2>
+            <p className="text-sm text-muted-foreground">@{profile?.username || "user"}</p>
+          </div>
         </div>
+
+        {/* City, Relationship, Hobby, Career */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          {profile?.current_city && (
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{profile.current_city}</span>
+            </div>
+          )}
+          {profile?.relationship_status && (
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Heart className="w-3.5 h-3.5 flex-shrink-0" />
+              <span className="truncate">{formatRelationshipStatus(profile.relationship_status)}</span>
+            </div>
+          )}
+          {profile?.hobby && (
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="truncate">🎯 {profile.hobby}</span>
+            </div>
+          )}
+          {profile?.career && (
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <span className="truncate">💼 {profile.career}</span>
+            </div>
+          )}
+        </div>
+
         {profile?.bio && (
-          <p className="text-sm text-foreground/80">
+          <p className="text-sm text-foreground/80 pt-2 border-t border-white/5">
             {profile.bio}
           </p>
         )}
-        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-          {profile?.relationship_status && (
-            <div className="flex items-center gap-1">
-              <Heart className="w-4 h-4" />
-              <span>{formatRelationshipStatus(profile.relationship_status)}</span>
-            </div>
-          )}
-          {profile?.current_city && (
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4" />
-              <span>{profile.current_city}</span>
-            </div>
-          )}
-        </div>
       </div>
 
         {/* Action Buttons */}

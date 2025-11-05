@@ -125,10 +125,12 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          career: string | null
           created_at: string
           current_city: string | null
           display_name: string | null
           glow_up_progress: number
+          hobby: string | null
           id: string
           points: number
           relationship_status: string | null
@@ -138,10 +140,12 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          career?: string | null
           created_at?: string
           current_city?: string | null
           display_name?: string | null
           glow_up_progress?: number
+          hobby?: string | null
           id: string
           points?: number
           relationship_status?: string | null
@@ -151,10 +155,12 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          career?: string | null
           created_at?: string
           current_city?: string | null
           display_name?: string | null
           glow_up_progress?: number
+          hobby?: string | null
           id?: string
           points?: number
           relationship_status?: string | null
@@ -226,6 +232,41 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "routines_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_type: string
+          id: string
+          level: number
+          progress: number
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_type: string
+          id?: string
+          level?: number
+          progress?: number
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_type?: string
+          id?: string
+          level?: number
+          progress?: number
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

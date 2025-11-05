@@ -20,6 +20,8 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
   const [bio, setBio] = useState("");
   const [relationshipStatus, setRelationshipStatus] = useState("");
   const [currentCity, setCurrentCity] = useState("");
+  const [hobby, setHobby] = useState("");
+  const [career, setCareer] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -29,6 +31,8 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
       setBio(profile.bio || "");
       setRelationshipStatus(profile.relationship_status || "");
       setCurrentCity(profile.current_city || "");
+      setHobby(profile.hobby || "");
+      setCareer(profile.career || "");
     }
   }, [profile]);
 
@@ -47,6 +51,8 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
           bio,
           relationship_status: relationshipStatus,
           current_city: currentCity,
+          hobby,
+          career,
         })
         .eq("id", user.id);
 
@@ -127,7 +133,30 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
               id="city"
               value={currentCity}
               onChange={(e) => setCurrentCity(e.target.value)}
-              placeholder="e.g., New York, NY"
+              placeholder="e.g., Tokyo, Japan"
+              className="glass-card"
+            />
+            <p className="text-xs text-muted-foreground">Enter any city in the world</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hobby">Hobby</Label>
+            <Input
+              id="hobby"
+              value={hobby}
+              onChange={(e) => setHobby(e.target.value)}
+              placeholder="e.g., Photography"
+              className="glass-card"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="career">Career</Label>
+            <Input
+              id="career"
+              value={career}
+              onChange={(e) => setCareer(e.target.value)}
+              placeholder="e.g., Software Engineer"
               className="glass-card"
             />
           </div>
