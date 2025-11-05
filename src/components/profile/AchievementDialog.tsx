@@ -1,12 +1,17 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { Dumbbell, Sparkles, TrendingUp, Flame, Lock } from "lucide-react";
+import { Dumbbell, Sparkles, TrendingUp, Apple, Lock } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import BodyGoalsGuide from "./guides/BodyGoalsGuide";
+import SkinGlowGuide from "./guides/SkinGlowGuide";
+import LevelUpGuide from "./guides/LevelUpGuide";
+import MealsGuide from "./guides/MealsGuide";
 
 interface AchievementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: 'body_goals' | 'skin_glow' | 'level_up' | 'fire_form';
+  type: 'body_goals' | 'skin_glow' | 'level_up' | 'meals';
   currentLevel: number;
   progress: number;
 }
@@ -48,16 +53,16 @@ const achievementData = {
       { level: 5, name: "Master", requirement: 1000, reward: "VIP status" },
     ]
   },
-  fire_form: {
-    icon: Flame,
-    title: "Fire Form",
+  meals: {
+    icon: Apple,
+    title: "Meal Plans",
     color: "text-primary",
     levels: [
-      { level: 1, name: "Warming Up", requirement: 0, reward: "Energy tracking" },
-      { level: 2, name: "On Fire", requirement: 100, reward: "Metabolism booster tips" },
-      { level: 3, name: "Peak Performance", requirement: 250, reward: "Meal prep guides" },
-      { level: 4, name: "Unstoppable", requirement: 500, reward: "Performance analytics" },
-      { level: 5, name: "Legend", requirement: 1000, reward: "Hall of Fame entry" },
+      { level: 1, name: "Nutrition Basics", requirement: 0, reward: "Meal planning guide" },
+      { level: 2, name: "Macro Tracker", requirement: 100, reward: "Calorie calculator" },
+      { level: 3, name: "Meal Prep Pro", requirement: 250, reward: "Custom meal plans" },
+      { level: 4, name: "Nutrition Expert", requirement: 500, reward: "Supplement guide" },
+      { level: 5, name: "Diet Master", requirement: 1000, reward: "Personal nutritionist AI" },
     ]
   },
 };
@@ -69,9 +74,24 @@ const AchievementDialog = ({ open, onOpenChange, type, currentLevel, progress }:
   const nextLevelData = achievement.levels[currentLevel];
   const progressToNext = nextLevelData ? (progress / nextLevelData.requirement) * 100 : 100;
 
+  const getGuideComponent = () => {
+    switch (type) {
+      case 'body_goals':
+        return <BodyGoalsGuide />;
+      case 'skin_glow':
+        return <SkinGlowGuide />;
+      case 'level_up':
+        return <LevelUpGuide />;
+      case 'meals':
+        return <MealsGuide />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="glass-card max-w-md">
+      <DialogContent className="glass-card max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Icon className={`w-8 h-8 ${achievement.color}`} />
@@ -79,7 +99,13 @@ const AchievementDialog = ({ open, onOpenChange, type, currentLevel, progress }:
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
+        <Tabs defaultValue="progress" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="progress">Progress & Levels</TabsTrigger>
+            <TabsTrigger value="guide">Complete Guide</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="progress" className="space-y-6 mt-4">
           {/* Current Level */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -147,8 +173,13 @@ const AchievementDialog = ({ open, onOpenChange, type, currentLevel, progress }:
                 );
               })}
             </div>
-          </div>
-        </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="guide" className="mt-4">
+            {getGuideComponent()}
+          </TabsContent>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );

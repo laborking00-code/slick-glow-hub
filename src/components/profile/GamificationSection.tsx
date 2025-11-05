@@ -1,10 +1,10 @@
-import { Dumbbell, Sparkles, TrendingUp, Flame, Zap } from "lucide-react";
+import { Dumbbell, Sparkles, TrendingUp, Apple, Zap } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import AchievementDialog from "./AchievementDialog";
 
-type AchievementType = 'body_goals' | 'skin_glow' | 'level_up' | 'fire_form';
+type AchievementType = 'body_goals' | 'skin_glow' | 'level_up' | 'meals';
 
 const GamificationSection = () => {
   const [profile, setProfile] = useState<any>(null);
@@ -58,7 +58,7 @@ const GamificationSection = () => {
     { type: 'body_goals' as AchievementType, icon: Dumbbell, label: "Body Goals", color: "text-accent" },
     { type: 'skin_glow' as AchievementType, icon: Sparkles, label: "Skin Glow", color: "text-primary" },
     { type: 'level_up' as AchievementType, icon: TrendingUp, label: "Level Up", color: "text-accent" },
-    { type: 'fire_form' as AchievementType, icon: Flame, label: "Fire Form", color: "text-primary" },
+    { type: 'meals' as AchievementType, icon: Apple, label: "Meal Plans", color: "text-primary" },
   ];
 
   const glowUpProgress = profile ? (profile.glow_up_progress / 1000) * 100 : 0;
