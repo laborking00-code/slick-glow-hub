@@ -63,6 +63,17 @@ const ProfileHeader = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file size (max 50MB for videos, 10MB for images)
+    const maxSize = file.type.startsWith('video/') ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: `Max size is ${file.type.startsWith('video/') ? '50MB for videos' : '10MB for images'}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploadingAvatar(true);
     try {
       const url = await uploadImage(file, 'avatar');
@@ -98,6 +109,17 @@ const ProfileHeader = () => {
   const handleCoverChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Validate file size (max 100MB for videos, 10MB for images)
+    const maxSize = file.type.startsWith('video/') ? 100 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: "File too large",
+        description: `Max size is ${file.type.startsWith('video/') ? '100MB for videos' : '10MB for images'}`,
+        variant: "destructive",
+      });
+      return;
+    }
 
     setUploadingCover(true);
     try {
@@ -224,11 +246,22 @@ const ProfileHeader = () => {
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-accent to-primary p-1 animate-scale-in animate-pulse-glow shadow-lg">
             <div className="w-full h-full rounded-full bg-card flex items-center justify-center overflow-hidden">
               {profile?.avatar_url ? (
-                <img 
-                  src={profile.avatar_url} 
-                  alt="Profile" 
-                  className="w-full h-full object-cover"
-                />
+                isVideo(profile.avatar_url) ? (
+                  <video 
+                    src={profile.avatar_url} 
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img 
+                    src={profile.avatar_url} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                )
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-primary/80 to-accent/80 flex items-center justify-center relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent" />
@@ -251,7 +284,7 @@ const ProfileHeader = () => {
             <input
               ref={avatarInputRef}
               type="file"
-              accept="image/*"
+              accept="image/*,video/*"
               onChange={handleAvatarChange}
               className="hidden"
               disabled={uploadingAvatar}
