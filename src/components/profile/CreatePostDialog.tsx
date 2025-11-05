@@ -3,6 +3,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { MessageSquare, Video, Film, Radio, Users, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import TextPostDialog from "@/components/create/TextPostDialog";
+import VideoPostDialog from "@/components/create/VideoPostDialog";
 
 interface CreatePostDialogProps {
   open: boolean;
@@ -13,6 +15,8 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   const [stream, setStream] = useState<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
+  const [showTextDialog, setShowTextDialog] = useState(false);
+  const [showVideoDialog, setShowVideoDialog] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -26,8 +30,13 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   const startCamera = async () => {
     try {
       const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: false,
+        video: {
+          facingMode: "user",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          frameRate: { ideal: 60 },
+        },
+        audio: true,
       });
       setStream(mediaStream);
       if (videoRef.current) {
@@ -51,10 +60,24 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   };
 
   const handleCreateType = (type: string) => {
-    toast({
-      title: `Creating ${type}`,
-      description: "This feature is coming soon!",
-    });
+    onOpenChange(false);
+    
+    switch (type) {
+      case "text":
+        setShowTextDialog(true);
+        break;
+      case "video":
+        setShowVideoDialog(true);
+        break;
+      case "reel":
+      case "stream":
+      case "chat":
+        toast({
+          title: `${type} coming soon`,
+          description: "This feature is being developed!",
+        });
+        break;
+    }
   };
 
   return (
@@ -83,61 +106,64 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
           </div>
 
           {/* Bottom Actions Bar */}
-          <div className="bg-gradient-to-t from-black/90 to-transparent p-6 pb-8">
-            <div className="flex justify-around items-center max-w-2xl mx-auto">
+          <div className="bg-gradient-to-t from-black/90 to-transparent p-4 pb-6">
+            <div className="flex justify-center items-center gap-3 max-w-xl mx-auto">
               <Button
                 variant="ghost"
-                size="lg"
-                className="flex flex-col gap-2 h-auto py-3 px-6 text-white hover:bg-white/10 hover:scale-110 transition-all"
-                onClick={() => handleCreateType("Text Post")}
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2 px-3 text-white hover:bg-white/10 transition-all"
+                onClick={() => handleCreateType("text")}
               >
-                <MessageSquare className="w-8 h-8" />
-                <span className="text-xs font-medium">Text</span>
+                <MessageSquare className="w-6 h-6" />
+                <span className="text-xs">Text</span>
               </Button>
 
               <Button
                 variant="ghost"
-                size="lg"
-                className="flex flex-col gap-2 h-auto py-3 px-6 text-white hover:bg-white/10 hover:scale-110 transition-all"
-                onClick={() => handleCreateType("Video Post")}
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2 px-3 text-white hover:bg-white/10 transition-all"
+                onClick={() => handleCreateType("video")}
               >
-                <Video className="w-8 h-8" />
-                <span className="text-xs font-medium">Video</span>
+                <Video className="w-6 h-6" />
+                <span className="text-xs">Video</span>
               </Button>
 
               <Button
                 variant="ghost"
-                size="lg"
-                className="flex flex-col gap-2 h-auto py-3 px-6 text-white hover:bg-white/10 hover:scale-110 transition-all"
-                onClick={() => handleCreateType("Reel")}
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2 px-3 text-white hover:bg-white/10 transition-all"
+                onClick={() => handleCreateType("reel")}
               >
-                <Film className="w-8 h-8" />
-                <span className="text-xs font-medium">Reel</span>
+                <Film className="w-6 h-6" />
+                <span className="text-xs">Reel</span>
               </Button>
 
               <Button
                 variant="ghost"
-                size="lg"
-                className="flex flex-col gap-2 h-auto py-3 px-6 text-white hover:bg-white/10 hover:scale-110 transition-all"
-                onClick={() => handleCreateType("Stream")}
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2 px-3 text-white hover:bg-white/10 transition-all"
+                onClick={() => handleCreateType("stream")}
               >
-                <Radio className="w-8 h-8" />
-                <span className="text-xs font-medium">Stream</span>
+                <Radio className="w-6 h-6" />
+                <span className="text-xs">Stream</span>
               </Button>
 
               <Button
                 variant="ghost"
-                size="lg"
-                className="flex flex-col gap-2 h-auto py-3 px-6 text-white hover:bg-white/10 hover:scale-110 transition-all"
-                onClick={() => handleCreateType("Video Chat")}
+                size="sm"
+                className="flex flex-col gap-1 h-auto py-2 px-3 text-white hover:bg-white/10 transition-all"
+                onClick={() => handleCreateType("chat")}
               >
-                <Users className="w-8 h-8" />
-                <span className="text-xs font-medium">Chat</span>
+                <Users className="w-6 h-6" />
+                <span className="text-xs">Chat</span>
               </Button>
             </div>
           </div>
         </div>
       </DialogContent>
+
+      <TextPostDialog open={showTextDialog} onOpenChange={setShowTextDialog} />
+      <VideoPostDialog open={showVideoDialog} onOpenChange={setShowVideoDialog} />
     </Dialog>
   );
 };
