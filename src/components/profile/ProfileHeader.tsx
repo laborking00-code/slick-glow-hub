@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Share2, MapPin, Heart, MessageCircle, Camera, Upload, Video } from "lucide-react";
+import { MessageCircle, Camera, Upload, Video, MapPin, Heart } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import EditProfileDialog from "./EditProfileDialog";
+import ShareDialog from "./ShareDialog";
 import { useToast } from "@/hooks/use-toast";
 
 const ProfileHeader = () => {
@@ -317,9 +318,6 @@ const ProfileHeader = () => {
           <Button variant="ghost" size="icon" className="hover:bg-primary/10">
             <MessageCircle className="w-5 h-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-            <Share2 className="w-5 h-5" />
-          </Button>
           <EditProfileDialog profile={profile} onProfileUpdated={fetchProfile} />
         </div>
       </div>
@@ -369,9 +367,10 @@ const ProfileHeader = () => {
         {/* Action Buttons */}
         <div className="flex gap-2 relative z-10">
           <EditProfileDialog profile={profile} onProfileUpdated={fetchProfile} />
-          <Button variant="secondary" className="flex-1 hover:scale-[1.02] transition-all">
-            Share Profile
-          </Button>
+          <ShareDialog 
+            username={profile?.username || 'user'} 
+            displayName={profile?.display_name || 'User'} 
+          />
         </div>
       </div>
     </div>
