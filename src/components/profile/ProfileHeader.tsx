@@ -34,7 +34,7 @@ const ProfileHeader = () => {
   }, []);
 
   const formatRelationshipStatus = (status: string) => {
-    if (!status) return null;
+    if (!status || status === "not_specified") return null;
     const statusMap: { [key: string]: string } = {
       single: "Single",
       in_relationship: "In a Relationship",

@@ -29,7 +29,7 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
     if (profile) {
       setDisplayName(profile.display_name || "");
       setBio(profile.bio || "");
-      setRelationshipStatus(profile.relationship_status || "");
+      setRelationshipStatus(profile.relationship_status || "not_specified");
       setCurrentCity(profile.current_city || "");
       setHobby(profile.hobby || "");
       setCareer(profile.career || "");
@@ -49,7 +49,7 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
         .update({
           display_name: displayName,
           bio,
-          relationship_status: relationshipStatus,
+          relationship_status: relationshipStatus === "not_specified" ? null : relationshipStatus,
           current_city: currentCity,
           hobby,
           career,
@@ -117,7 +117,7 @@ const EditProfileDialog = ({ profile, onProfileUpdated }: EditProfileDialogProps
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Prefer not to say</SelectItem>
+                <SelectItem value="not_specified">Prefer not to say</SelectItem>
                 <SelectItem value="single">Single</SelectItem>
                 <SelectItem value="in_relationship">In a Relationship</SelectItem>
                 <SelectItem value="engaged">Engaged</SelectItem>
