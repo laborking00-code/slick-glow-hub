@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { MessageCircle, Camera, Upload, Video, MapPin, Heart } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import EditProfileDialog from "./EditProfileDialog";
 import ShareDialog from "./ShareDialog";
@@ -315,9 +316,11 @@ const ProfileHeader = () => {
         </div>
         
         <div className="flex gap-2">
-          <Button variant="ghost" size="icon" className="hover:bg-primary/10">
-            <MessageCircle className="w-5 h-5" />
-          </Button>
+          <Link to="/messages">
+            <Button variant="ghost" size="icon" className="hover:bg-primary/10">
+              <MessageCircle className="w-5 h-5" />
+            </Button>
+          </Link>
           <EditProfileDialog profile={profile} onProfileUpdated={fetchProfile} />
         </div>
       </div>
