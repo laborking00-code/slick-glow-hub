@@ -143,7 +143,7 @@ const GamificationSection = () => {
             </div>
           </div>
           <div className="text-2xl font-bold gradient-text">
-            47 🔥
+            {profile?.daily_streak || 0} 🔥
           </div>
         </div>
       </div>
