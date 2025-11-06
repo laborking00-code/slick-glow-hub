@@ -91,7 +91,7 @@ const AddStoryDialog = ({ open, onOpenChange }: AddStoryDialogProps) => {
         .from("stories")
         .getPublicUrl(fileName);
 
-      const { error: insertError } = await supabase
+      const { error: insertError } = await (supabase as any)
         .from("stories")
         .insert({
           user_id: user.id,

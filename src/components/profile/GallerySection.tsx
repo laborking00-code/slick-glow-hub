@@ -45,7 +45,7 @@ const GallerySection = () => {
   const loadAlbums = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("albums")
       .select("*")
       .eq("user_id", user.id)
@@ -62,7 +62,7 @@ const GallerySection = () => {
   const loadGalleryItems = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("gallery_items")
       .select("*")
       .eq("user_id", user.id)
@@ -80,7 +80,7 @@ const GallerySection = () => {
   const createAlbum = async () => {
     if (!user || !newAlbumTitle.trim()) return;
 
-    const { error } = await supabase.from("albums").insert({
+    const { error } = await (supabase as any).from("albums").insert({
       user_id: user.id,
       title: newAlbumTitle.trim(),
     });

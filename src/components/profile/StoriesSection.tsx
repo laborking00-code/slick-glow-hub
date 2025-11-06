@@ -50,7 +50,7 @@ const StoriesSection = () => {
   }, [selectedStory]);
 
   const loadStories = async () => {
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("stories")
       .select(`
         *,
@@ -70,7 +70,7 @@ const StoriesSection = () => {
   const recordView = async (storyId: string) => {
     if (!user) return;
 
-    await supabase
+    await (supabase as any)
       .from("story_views")
       .insert({
         story_id: storyId,
